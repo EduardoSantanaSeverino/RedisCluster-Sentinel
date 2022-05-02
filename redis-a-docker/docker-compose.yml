@@ -5,6 +5,7 @@ services:
   redis-a:
     image: redis:6.2-alpine
     container_name: redis-a
+    network_mode: "host"
     restart: always
     ports:
       - "${REDIS_A_PORT}:6379"
@@ -14,12 +15,12 @@ services:
   sentinel-a:
     image: redis:6.2-alpine
     container_name: sentinel-a
+    network_mode: "host"
     restart: always
-    command: sh -c "chown redis:redis /etc/redis/sentinel.conf && redis-server /etc/redis/sentinel.conf --sentinel"
+    command: sh -c "chown redis:redis -R /etc/redis && redis-server /etc/redis/sentinel.conf --sentinel"
     depends_on:
       - redis-a
     ports:
       - "${SENTINEL_A_PORT}:26379"
     volumes: 
-      - ./sentinel.conf:/etc/redis/sentinel.conf
-
+      - ./data:/etc/redis

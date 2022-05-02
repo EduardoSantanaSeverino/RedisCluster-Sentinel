@@ -65,13 +65,11 @@ set -o allexport
 [[ -f .env ]] && source .env
 set +o allexport
 
-# Replace the Sorry Cypress project name.
-sed -i -e "s|REDIS_MASTER|$REDIS_MASTER|g" sentinel.conf
-sed -i -e "s|REDIS_MASTER|$REDIS_MASTER|g" redis.conf
 
 if [ "$REDIS_MASTER" == "$REDIS_A_HOST_IP" ]
 then
     echo "Both Strings are Equal."
+    sed -i -e "s|slaveof REDIS_MASTER 6379|#|g" redis.conf
 else
     echo "Both Strings are not Equal."
         
@@ -96,6 +94,10 @@ else
         fi
     done
 fi
+
+# Replace the Sorry Cypress project name.
+sed -i -e "s|REDIS_MASTER|$REDIS_MASTER|g" data/sentinel.conf
+sed -i -e "s|REDIS_MASTER|$REDIS_MASTER|g" redis.conf
 
 echo ' docker-compose up -d - Start'
 docker-compose up -d 
