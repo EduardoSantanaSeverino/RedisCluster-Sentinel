@@ -21,7 +21,8 @@ cd redis-a-docker
 echo "" > .env
 
 # pass the REDIS_MASTER as 1
-if ["$1"] then
+if [ "$1" ] 
+then
     echo "Argument supplied is: $1"
     echo "REDIS_MASTER=$1" >> .env
 else
@@ -30,7 +31,8 @@ else
 fi
 
 # pass the REDIS_A_HOST_IP as 2
-if ["$2"] then
+if [ "$2" ] 
+then
     echo "Argument supplied is: $2"
     echo "REDIS_A_HOST_IP=$2" >> .env
 else
@@ -39,7 +41,8 @@ else
 fi
 
 # pass the REDIS_A_PORT as 3
-if ["$3"] then
+if [ "$3" ]
+then
     echo "Argument supplied is: $3"
     echo "REDIS_A_PORT=$3" >> .env
 else
@@ -48,7 +51,8 @@ else
 fi
 
 # pass the SENTINEL_A_PORT as 4
-if ["$4"] then
+if [ "$4" ] 
+then
     echo "Argument supplied is: $4"
     echo "SENTINEL_A_PORT=$4" >> .env
 else
@@ -63,6 +67,35 @@ set +o allexport
 
 # Replace the Sorry Cypress project name.
 sed -i -e "s|REDIS_MASTER|$REDIS_MASTER|g" sentinel.conf
+sed -i -e "s|REDIS_MASTER|$REDIS_MASTER|g" redis.conf
+
+if [ "$REDIS_MASTER" == "$REDIS_A_HOST_IP" ]
+then
+    echo "Both Strings are Equal."
+else
+    echo "Both Strings are not Equal."
+        
+    SUB='0 received,'
+    COUNTER=1
+
+    while [ $COUNTER -lt 60 ];
+    do 
+        sleep 2
+        PING_RESULTS=$(ping $REDIS_MASTER -c 1)
+
+        if [[ "$PING_RESULTS" == *"$SUB"* ]]; then
+            echo "------------------------------------------------------------------------"
+            echo "[INFO] $SUB WAS FOUND." 
+            echo "------------------------------------------------------------------------"
+            COUNTER=60
+        else
+            echo "------------------------------------------------------------------------"
+            echo "[ERROR] NOT FOUND THE $SUB, ON THE CONTENT, WAITING." 
+            echo "------------------------------------------------------------------------"
+            COUNTER=`expr $COUNTER + 1`
+        fi
+    done
+fi
 
 echo ' docker-compose up -d - Start'
 docker-compose up -d 
