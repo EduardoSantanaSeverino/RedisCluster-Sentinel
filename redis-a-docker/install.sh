@@ -69,10 +69,11 @@ set +o allexport
 if [ "$REDIS_MASTER" == "$REDIS_A_HOST_IP" ]
 then
     echo "Both Strings are Equal."
-    sed -i -e "s|slaveof REDIS_MASTER 6379|#|g" redis.conf
+    sed -i -e "s|command: redis-server --slaveof REDIS_MASTER 6379|#|g" docker-compose.yml
 else
     echo "Both Strings are not Equal."
-        
+    sed -i -e "s|REDIS_MASTER|$REDIS_MASTER|g" docker-compose.yml
+    
     SUB='1 received,'
     COUNTER=1
 
@@ -97,7 +98,6 @@ fi
 
 # Replace the Sorry Cypress project name.
 sed -i -e "s|REDIS_MASTER|$REDIS_MASTER|g" data/sentinel.conf
-sed -i -e "s|REDIS_MASTER|$REDIS_MASTER|g" redis.conf
 
 echo ' docker-compose up -d - Start'
 docker-compose up -d 
