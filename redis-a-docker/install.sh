@@ -75,7 +75,7 @@ then
 else
     echo "Both Strings are not Equal."
         
-    SUB='0 received,'
+    SUB='1 received,'
     COUNTER=1
 
     while [ $COUNTER -lt 60 ];
